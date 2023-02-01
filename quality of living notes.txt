@@ -1,0 +1,46 @@
+quality of living notes
+
+GDP data in USD:
+https://data.oecd.org/gdp/gross-domestic-product-gdp.htm
+
+Finding GDP data is easy but finding it in the right format, currency or the way it is calculated can be challenging. I found it easier to pull it from OECD than IMF/IFS for this reason.
+
+GDP approaches selected in this dataset:
+output
+expenditure
+income
+GDP currency: domestic as well as USD.
+
+World Bank (https://data.worldbank.org/indicator/NY.GDP.MKTP.CD) also lists GDP data for all countries, until 2021, in USD, and offers easy, convenient downloads.
+
+Make sure to download the GDP "per capita", not Total GDP or "Most Recent Value (Millions)"
+
+https://www.investopedia.com/terms/p/per-capita-gdp.asp
+What Is GDP Per Capita?
+Gross domestic product (GDP) per capita is a financial metric that breaks down a country's economic output per person and is calculated by dividing the GDP of a nation by its population. 
+
+OECD
+How are the indicators normalised?
+
+The Index gathers many indicators, expressed on very different units (dollars, years, etc). To compare and aggregate values expressed in different unities, the values have to be normalised.
+
+This normalisation is done according to a standard formula which converts the original values of the indicators into numbers varying in a range between 0 (for the worst possible outcome) and 1 (for the best possible outcome). The formula is:
+(value to convert – minimum value)/ (maximum value – minimum value)
+
+When an indicator measures a negative component of well-being (e.g. unemployment) the formula used is:
+1 – (value to convert – minimum value/maximum value – minimum value)
+
+
+#########################################################################################
+snippets to add later
+def prepare_country_stats(oecd_bli, gdp_per_capita):
+    oecd_bli = oecd_bli[oecd_bli["INEQUALITY"]=="TOT"]
+    oecd_bli = oecd_bli.pivot(index="Country", columns="Indicator", values="Value")
+    gdp_per_capita.rename(columns={"2021": "GDP per capita"}, inplace=True)
+    gdp_per_capita.set_index("Country Name", inplace=True)
+    full_country_stats = pd.merge(left=oecd_bli, right=gdp_per_capita,
+                                  left_index=True, right_index=True)
+    full_country_stats.sort_values(by="GDP per capita", inplace=True)
+    #remove_indices = [0, 1, 6, 8, 33, 34, 35]
+    #keep_indices = list(set(range(36)) - set(remove_indices))
+    return full_country_stats[["GDP per capita", "Life satisfaction"]]
